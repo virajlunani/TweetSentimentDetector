@@ -1,10 +1,3 @@
-
-# 1. download 1 days worth of data
-
-# 2. create a function: calls twitter api with twitter id and returns json
-
-# 3. loop through data folder to receive array of twitter data
-
 import datetime
 from lib2to3.pgen2 import token
 import os
@@ -65,8 +58,6 @@ def cleanRetweets(tweet):
     else:
         workingTweet = tweet["text"]
     return removeURL(workingTweet)
-    # custom cleaning: removing or translating emojis
-    # @ mentions
 
 # https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets
 def hydrateTweets(df, tweet_fields):
