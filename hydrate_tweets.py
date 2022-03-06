@@ -36,9 +36,6 @@ def isNumber(token):
 def removeURL(text):
     return re.sub(r"http\S+", "", text)
 
-def removeEmoji(string):
-    return emoji.get_emoji_regexp().sub(u'', string)
-
 def stemTweets(tweets):
     return [ps.stem(word) for word in tweets]
 
@@ -60,30 +57,40 @@ def cleanRetweets(tweet):
     return removeURL(workingTweet)
 
 # https://developer.twitter.com/en/docs/twitter-api/tweets/lookup/api-reference/get-tweets
-def hydrateTweets(df, tweet_fields):
+def hydrateTweets(df, tweet_fields, user_fields):
     # take first column of tweet ids
     tweet_ids = list(df[0])
 
-    lookup_results = t.tweet_lookup(tweet_ids=tweet_ids, tweet_fields=tweet_fields, media_fields=None, poll_fields=None, place_fields=None, user_fields=None, expansions=None)
+    lookup_results = t.tweet_lookup(tweet_ids=tweet_ids, tweet_fields=tweet_fields, media_fields=None, poll_fields=None, place_fields=None, user_fields=user_fields, expansions=None)
 
     tweets = []
+    users = []
     # Get all results page by page:
     for page in lookup_results:
         for tweet in ensure_flattened(page):
             tweets.append(cleanRetweets(tweet))
+            users.append(removeURL(tweet["author"]["description"]))
         tweets = stemTweets(tweets)
         tweets_tokens = tokenizeTweets(tweets)
         tweets_tokens = removePunctuation(tweets_tokens)
 
+        users = stemTweets(users)
+        users_tokens = tokenizeTweets(users)
+        users_tokens = removePunctuation(users_tokens)
+
         stopeng = set(stopwords.words('english'))
         cleaned_tweets = []
+        cleaned_users = []
         for tokens in tweets_tokens:
             cleaned_tweets.append([token for token in tokens if token not in stopeng])
+        for tokens in users_tokens:
+            cleaned_users.append([token for token in tokens if token not in stopeng])
         # Stop iteration prematurely, to only get 1 page of results.
         break
     
     final_tweets = [' '.join(cleaned_tweet) for cleaned_tweet in cleaned_tweets]
-    return final_tweets
+    final_users = [' '.join(cleaned_user) for cleaned_user in cleaned_users]
+    return final_tweets, final_users
 
 def createBoWFeatureVecTweets(tweets, labels):
     vectorizer = CountVectorizer()
