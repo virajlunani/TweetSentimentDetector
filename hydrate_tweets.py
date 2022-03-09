@@ -47,7 +47,7 @@ def removePunctuation(tweets_tokens):
     for tweet_tokens in tweets_tokens:
         noPuncTweets.append([emoji.demojize(tweet_token) for tweet_token in tweet_tokens if tweet_token not in punctuation and not isNumber(tweet_token) and not tweet_token.startswith(('@', '#'))])
     return noPuncTweets
-
+#remove emojis
 def cleanRetweets(tweet):
     workingTweet = tweet
     if "referenced_tweets" in tweet:
@@ -65,7 +65,7 @@ def hydrateTweets(df, tweet_fields, user_fields):
 
     tweets = []
     users = []
-    # Get all results page by page:
+    # Get all results page by page: all tweets
     for page in lookup_results:
         for tweet in ensure_flattened(page):
             tweets.append(cleanRetweets(tweet))
@@ -92,14 +92,12 @@ def hydrateTweets(df, tweet_fields, user_fields):
     final_users = [' '.join(cleaned_user) for cleaned_user in cleaned_users]
     return final_tweets, final_users
 
-def createBoWFeatureVecTweets(tweets, labels):
-    vectorizer = CountVectorizer()
+def createBoWFeatureVecTweets(tweets, labels, vectorizer):
     X = vectorizer.fit_transform(tweets).toarray()
     y = labels
-    return X, y, vectorizer
+    return X, y
 
-def createTfIdfFeatureVecTweets(tweets, labels):
-	vectorizer = TfidfVectorizer()
+def createTfIdfFeatureVecTweets(tweets, labels, vectorizer):
 	X = vectorizer.fit_transform(tweets).toarray()
 	y = labels
-	return X, y, vectorizer
+	return X, y
