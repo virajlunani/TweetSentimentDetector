@@ -45,7 +45,10 @@ def tokenizeTweets(tweets):
 def removePunctuation(tweets_tokens):
     noPuncTweets = []
     for tweet_tokens in tweets_tokens:
-        noPuncTweets.append([emoji.demojize(tweet_token) for tweet_token in tweet_tokens if tweet_token not in punctuation and not isNumber(tweet_token) and not tweet_token.startswith(('@', '#'))])
+        for tweet_token in tweet_tokens:
+            new_tweet_token = emoji.demojize(tweet_token)
+            if new_tweet_token not in punctuation and not isNumber(tweet_token) and not tweet_token.startswith(('@', '#', ':')):
+                noPuncTweets.append(new_tweet_token)
     return noPuncTweets
 #remove emojis
 def cleanRetweets(tweet):
