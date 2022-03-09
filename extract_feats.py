@@ -2,7 +2,6 @@ import nrclex
 import numpy as np
 import nltk
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
-from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 
 def extract_nrc_pos_feats(df, features):
@@ -80,10 +79,6 @@ def createTfIdfFeatureVec(df):
 	X = vectorizer.fit_transform(df['text']).toarray()
 	y = df.loc[:, 'label'].values
 	return X, y, vectorizer
-
-def splitData(X, y):
-	X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
-	return X_train, X_test, y_train, y_test
 
 def trainLogisticRegression(X_train, X_test, y_train, y_test):
 	# lbfgs can't converge, so using newton-cg instead #
