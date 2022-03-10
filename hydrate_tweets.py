@@ -45,10 +45,7 @@ def tokenizeTweets(tweets):
 def removePunctuation(tweets_tokens):
     noPuncTweets = []
     for tweet_tokens in tweets_tokens:
-        for tweet_token in tweet_tokens:
-            new_tweet_token = emoji.demojize(tweet_token)
-            if new_tweet_token not in punctuation and not isNumber(tweet_token) and not tweet_token.startswith(('@', '#', ':')):
-                noPuncTweets.append(new_tweet_token)
+        noPuncTweets.append([emoji.demojize(tweet_token) for tweet_token in tweet_tokens if tweet_token not in punctuation and not isNumber(tweet_token) and not tweet_token.startswith(('@', '#'))])
     return noPuncTweets
 #remove emojis
 def cleanRetweets(tweet):
@@ -68,9 +65,11 @@ def hydrateTweets(df, tweet_fields, user_fields):
 
     tweets = []
     users = []
+    timestamps = []
     # Get all results page by page: all tweets
     for page in lookup_results:
         for tweet in ensure_flattened(page):
+            timestamps.append(tweet["created_at"])
             tweets.append(cleanRetweets(tweet))
             users.append(removeURL(tweet["author"]["description"]))
         tweets = stemTweets(tweets)
@@ -93,7 +92,7 @@ def hydrateTweets(df, tweet_fields, user_fields):
     
     final_tweets = [' '.join(cleaned_tweet) for cleaned_tweet in cleaned_tweets]
     final_users = [' '.join(cleaned_user) for cleaned_user in cleaned_users]
-    return final_tweets, final_users
+    return final_tweets, final_users, timestamps
 
 def createBoWFeatureVecTweets(tweets, labels, vectorizer):
     X = vectorizer.fit_transform(tweets).toarray()
