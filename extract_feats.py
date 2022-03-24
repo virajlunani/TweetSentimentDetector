@@ -3,6 +3,7 @@ import numpy as np
 import nltk
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import roc_auc_score
 
 def extract_nrc_pos_feats(df, features):
     feature_freq = np.zeros((len(df), len(features)))
@@ -82,7 +83,26 @@ def createTfIdfFeatureVec(df):
 
 def trainLogisticRegression(X_train, X_test, y_train, y_test):
 	# lbfgs can't converge, so using newton-cg instead #
-    clf = LogisticRegression(random_state=42,multi_class='multinomial',solver='newton-cg').fit(X_train, y_train)
+    w={0:4, 1:8, 2:12, 3:13, 4:29, 5:34}
+    clf = LogisticRegression(random_state=42,multi_class='multinomial',solver='newton-cg',class_weight=w).fit(X_train, y_train)
     accuracy = clf.score(X_test, y_test)
     return clf, round(accuracy,3)
 
+def roc_auc_score_multiclass(actual_class, pred_class, average = "macro"):
+	
+  #creating a set of all the unique classes using the actual class list
+  unique_class = set(actual_class)
+  roc_auc_dict = {}
+  for per_class in unique_class:
+    #creating a list of all the classes except the current class 
+    other_class = [x for x in unique_class if x != per_class]
+
+    #marking the current class as 1 and all other classes as 0
+    new_actual_class = [0 if x in other_class else 1 for x in actual_class]
+    new_pred_class = [0 if x in other_class else 1 for x in pred_class]
+
+    #using the sklearn metrics method to calculate the roc_auc_score
+    roc_auc = roc_auc_score(new_actual_class, new_pred_class, average = average)
+    roc_auc_dict[per_class] = roc_auc
+
+  return roc_auc_dict
