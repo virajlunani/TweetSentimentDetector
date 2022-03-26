@@ -83,8 +83,13 @@ def createTfIdfFeatureVec(df):
 
 def trainLogisticRegression(X_train, X_test, y_train, y_test):
 	# lbfgs can't converge, so using newton-cg instead #
-    w={0:4, 1:8, 2:12, 3:13, 4:29, 5:34}
-    clf = LogisticRegression(random_state=42,multi_class='multinomial',solver='newton-cg',class_weight=w).fit(X_train, y_train)
+    clf = LogisticRegression(random_state=42,multi_class='multinomial',solver='newton-cg').fit(X_train, y_train)
+    accuracy = clf.score(X_test, y_test)
+    return clf, round(accuracy,3)
+
+def trainLogisticRegression_weighted(X_train, X_test, y_train, y_test, weights):
+	# lbfgs can't converge, so using newton-cg instead #
+    clf = LogisticRegression(random_state=42,multi_class='multinomial',solver='newton-cg',class_weight=weights).fit(X_train, y_train)
     accuracy = clf.score(X_test, y_test)
     return clf, round(accuracy,3)
 
